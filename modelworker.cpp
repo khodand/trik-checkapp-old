@@ -9,6 +9,6 @@ ModelWorker::ModelWorker(const QString &fileName)
 
 void ModelWorker::startExecution(const QString &qrsFile)
 {
-    QProcess::startDetached("2D-model", {qrsFile});
+    QProcess::startDetached("2D-model", {qrsFile, "--close-on-succes"});
     emit finished();
 }

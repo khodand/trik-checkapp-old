@@ -21,15 +21,26 @@ public:
 private slots:
     void selectTaskDirectory();
 
+    //void taskFinished();
+
     void runCheck();
 
 private:
+    void resetUiOptions(const QHash <QString, bool> &options);
+
+    void loadSettings();
+
+    void saveSettings();
+
     Ui::MainWindow *mUi;
     QDir mTasksDir;
     QDir mStudioDir;
+    QString mLocalSettings;
 
     QList <QThread *> mWorkerThreads;
     QList <ModelWorker *> mModelWorkers;
+
+    QHash <QString, QHash <QString, bool>> mDirOptions;
 
     QAtomicInt mActiveModels {0};
 };
