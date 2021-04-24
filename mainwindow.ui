@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="openTasks">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>210</y>
+      <x>100</x>
+      <y>320</y>
       <width>91</width>
       <height>23</height>
      </rect>
@@ -30,21 +30,21 @@
    <widget class="QLabel" name="currentTasksDir">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>210</y>
+      <x>200</x>
+      <y>320</y>
       <width>241</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>/</string>
+     <string>C:\</string>
     </property>
    </widget>
    <widget class="QPushButton" name="runCheckButton">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>410</y>
+      <x>340</x>
+      <y>500</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -56,14 +56,196 @@
    <widget class="QCheckBox" name="closeOnSuccessOption">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>120</y>
+      <x>340</x>
+      <y>410</y>
       <width>111</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
      <string>Close on success</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="chooseField">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>120</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Choose xml field</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="backgroundOption">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>430</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Background</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="speedLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>450</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="speedLabel">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>450</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Speed</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="messageLabel">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>430</y>
+      <width>171</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Press run to start.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>370</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Runner</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>100</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Patcher</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="patcherButton">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>250</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Patch files</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="wPPCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>200</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>world + position + ports</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="wPcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>180</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>world + position</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="worldCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>160</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>world</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="xmlFieldPath">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>120</y>
+      <width>241</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>C:\</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="resetPCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>220</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>reset robot position</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="showConsolecheckBox">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>390</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show robot console</string>
     </property>
    </widget>
   </widget>
