@@ -6,258 +6,158 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>573</width>
+    <height>414</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../trik/studio/installer/images/trik-studio.ico</normaloff>../../trik/studio/installer/images/trik-studio.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="openTasks">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>320</y>
-      <width>91</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open Tasks Dir</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="currentTasksDir">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>320</y>
-      <width>241</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>C:\</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="runCheckButton">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>500</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="closeOnSuccessOption">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>410</y>
-      <width>111</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Close on success</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="chooseField">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>120</y>
-      <width>91</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Choose xml field</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="backgroundOption">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>430</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Background</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="speedLineEdit">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>450</y>
-      <width>31</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="speedLabel">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>450</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Speed</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="messageLabel">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>430</y>
-      <width>171</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Press run to start.</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>370</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Runner</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>100</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Patcher</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="patcherButton">
-    <property name="geometry">
-     <rect>
-      <x>470</x>
-      <y>250</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Patch files</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="wPPCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>200</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>world + position + ports</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="wPcheckBox">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>180</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>world + position</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="worldCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>160</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>world</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="xmlFieldPath">
-    <property name="geometry">
-     <rect>
-      <x>550</x>
-      <y>120</y>
-      <width>241</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>C:\</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="resetPCheckBox">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>220</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>reset robot position</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="showConsolecheckBox">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>390</y>
-      <width>121</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show robot console</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>21</height>
-    </rect>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="openTasks">
+          <property name="text">
+           <string>Open Tasks Dir</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="currentTasksDir">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="chooseField">
+            <property name="text">
+             <string>Choose xml field</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="xmlFieldPath">
+            <property name="text">
+             <string>C:\</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="wPcheckBox">
+              <property name="text">
+               <string>world + position</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="worldCheckBox">
+              <property name="text">
+               <string>world</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="resetPCheckBox">
+              <property name="text">
+               <string>reset robot position</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="wPPCheckBox">
+              <property name="text">
+               <string>world + position + ports</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="closeOnSuccessOption">
+              <property name="text">
+               <string>Close on success</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showConsolecheckBox">
+              <property name="text">
+               <string>Show robot console</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="backgroundOption">
+              <property name="text">
+               <string>Background</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="runCheckButton">
+          <property name="text">
+           <string>Run</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
