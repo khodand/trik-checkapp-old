@@ -27,3 +27,15 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+win32 {
+	QMAKE_MANIFEST = $$PWD/application.exe.manifest
+	RC_ICONS = icon.ico
+	DISTFILES += $$QMAKE_MANIFEST $$RC_ICONS
+}
+
+macx {
+	ICON = icon.icns
+	QMAKE_INFO_PLIST = mainWindow.plist
+}
+
