@@ -51,10 +51,10 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     saveSettings();
-    for (auto i : mModelWorkers){
+	for (auto &&i : mModelWorkers){
         i->deleteLater();
     }
-    for (auto i : mWorkerThreads){
+	for (auto &&i : mWorkerThreads){
         i->deleteLater();
     }
     delete mUi;
@@ -95,7 +95,7 @@ void MainWindow::resetUiOptions(const QHash<QString, QVariant> &options)
                                          : mUi->resetPCheckBox->setCheckState(Qt::CheckState::Unchecked);
     mUi->xmlFieldPath->setText(options[xmlFieldPath].toString());
 
-    mUi->speedLineEdit->setText(options[speedOption].toString());
+	//mUi->speedLineEdit->setText(options[speedOption].toString());
 }
 
 void MainWindow::loadSettings()
@@ -104,11 +104,11 @@ void MainWindow::loadSettings()
     QSettings settings(mLocalSettings, QSettings::IniFormat);
     auto groups = settings.childGroups();
     qDebug() << groups;
-    for (auto g : groups) {
+	for (auto &&g : groups) {
         QHash <QString, QVariant> options;
 
         settings.beginGroup(g);
-        for (auto &key : defaultOptions.keys()) {
+		for (auto &&key : defaultOptions.keys()) {
             options[key] = settings.value(key, defaultOptions[key]);
         }
         settings.endGroup();
@@ -120,10 +120,10 @@ void MainWindow::loadSettings()
 void MainWindow::saveSettings()
 {
     QSettings settings(mLocalSettings, QSettings::IniFormat);
-    for (auto &dir: mDirOptions.keys()) {
+	for (auto &&dir: mDirOptions.keys()) {
         qDebug() << "beginGroup" << dir;
         settings.beginGroup(dir);
-        for (auto &option: mDirOptions[dir].keys()) {
+		for (auto &&option: mDirOptions[dir].keys()) {
             qDebug() << option << mDirOptions[dir][option];
             settings.setValue(option, mDirOptions[dir][option]);
         }
@@ -234,7 +234,7 @@ void MainWindow::createReport()
     QString end = "</body></html>";
     QString body = "";
 
-    for (auto s : mTasksStatus) {
+	for (auto &&s : mTasksStatus) {
         if (s.second.isEmpty()) {
             body += QString("<p style=\"color: #009933;\">%1 Successfull!</p>").arg(s.first);
         }
@@ -255,7 +255,7 @@ void MainWindow::on_runCheckButton_clicked()
     auto tasks = mTasksDir.entryList({"*.qrs"}, QDir::Files);
     qDebug() << tasks;
 
-    for (auto t : tasks) {
+	for (auto &&t : tasks) {
         /*mActiveModels++;
         auto workerThread = new QThread();
         mWorkerThreads.append(workerThread);
@@ -276,7 +276,7 @@ void MainWindow::on_runCheckButton_clicked()
 void MainWindow::on_patcherButton_clicked()
 {
     auto toPatch = mTasksDir.entryList({"*.qrs"}, QDir::Files);
-    for (auto qrs : toPatch) {
+	for (auto &&qrs : toPatch) {
         executeProcess("patcher", generatePathcerOptions(mTasksDir.filePath(qrs)));
     }
 }
