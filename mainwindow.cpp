@@ -15,7 +15,7 @@ const QString backgroundOption = "background";
 const QString speedOption = "speed";
 const QString consoleOption = "showConsole";
 
-const QString xmlFieldPath = "xmlPath";
+const QString xmlFieldsDir = "fieldsDir";
 const QString patchField = "patchField";
 const QString patchWorld = "patchWorld";
 const QString patchWP = "patchWroldAndPosition";
@@ -25,7 +25,7 @@ const QHash <QString, QVariant> defaultOptions {{closeSuccessOption, true}
 											   ,{backgroundOption, false}
 											   ,{speedOption, 5}
 											   ,{consoleOption, false}
-											   ,{xmlFieldPath, ""}
+											   ,{xmlFieldsDir, ""}
 											   ,{patchField, true}
 											   ,{patchWorld, false}
 											   ,{patchWP, false}};
@@ -41,8 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(mUi->closeOnSuccessOption, &QCheckBox::stateChanged, [this](int state){
 		mDirOptions[mTasksPath][closeSuccessOption] = state == Qt::CheckState::Checked;
 	});
-	connect(mUi->backgroundOption, &QCheckBox::stateChanged, [this](int state){
-		mDirOptions[mTasksPath][backgroundOption] = state == Qt::CheckState::Checked;
+	connect(mUi->backgroundOption, &QGroupBox::toggled, [this](bool state){
+		mDirOptions[mTasksPath][backgroundOption] = !state;
 	});
 
 	loadSettings();
@@ -72,7 +72,7 @@ QString MainWindow::chooseFile()
 {
 	QFileDialog dialog;
 	dialog.setNameFilter("*.xml");
-	dialog.setFileMode(QFileDialog::ExistingFile);
+	dialog.setFileMode(QFileDialog::Directory);
 	dialog.exec();
 	return dialog.directory().absoluteFilePath(dialog.selectedFiles().first());
 }
@@ -81,19 +81,18 @@ void MainWindow::resetUiOptions(const QHash<QString, QVariant> &options)
 {
 	options[closeSuccessOption].toBool() ? mUi->closeOnSuccessOption->setCheckState(Qt::CheckState::Checked)
 										 : mUi->closeOnSuccessOption->setCheckState(Qt::CheckState::Unchecked);
-	options[backgroundOption].toBool() ? mUi->backgroundOption->setCheckState(Qt::CheckState::Checked)
-										 : mUi->backgroundOption->setCheckState(Qt::CheckState::Unchecked);
+	mUi->backgroundOption->setChecked(!options[backgroundOption].toBool());
 	options[patchField].toBool() ? mUi->wPPCheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->wPPCheckBox->setCheckState(Qt::CheckState::Unchecked);
-	options[patchWorld].toBool() ? mUi->worldCheckBox->setCheckState(Qt::CheckState::Checked)
-										 : mUi->worldCheckBox->setCheckState(Qt::CheckState::Unchecked);
+//	options[patchWorld].toBool() ? mUi->worldCheckBox->setCheckState(Qt::CheckState::Checked)
+//										 : mUi->worldCheckBox->setCheckState(Qt::CheckState::Unchecked);
 	options[patchWP].toBool() ? mUi->wPcheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->wPcheckBox->setCheckState(Qt::CheckState::Unchecked);
 	options[resetRP].toBool() ? mUi->resetPCheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->resetPCheckBox->setCheckState(Qt::CheckState::Unchecked);
 	options[consoleOption].toBool() ? mUi->resetPCheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->resetPCheckBox->setCheckState(Qt::CheckState::Unchecked);
-	mUi->xmlFieldPath->setText(options[xmlFieldPath].toString());
+	mUi->xmlFieldsDir->setText(options[xmlFieldsDir].toString());
 
 	//mUi->speedLineEdit->setText(options[speedOption].toString());
 }
@@ -156,7 +155,7 @@ const QStringList MainWindow::generateRunnerOptions(const QString &file)
 const QStringList MainWindow::generatePathcerOptions(const QString &file)
 {
 	QStringList result {file};
-	auto xml = mDirOptions[mTasksPath][xmlFieldPath].toString();
+	auto xml = mDirOptions[mTasksPath][xmlFieldsDir].toString();
 
 	if (mDirOptions[mTasksPath][patchField].toBool()) {
 		result << "-f" << xml;
@@ -204,9 +203,10 @@ QString MainWindow::executeProcess(const QString &program, const QStringList &op
 void MainWindow::on_chooseField_clicked()
 {
 	auto path = chooseFile();
-	mUi->xmlFieldPath->setText(QDir::toNativeSeparators(path));
-	qDebug() << QDir::toNativeSeparators(path);
-	mDirOptions[mTasksPath][xmlFieldPath] = path;
+	path = QDir::toNativeSeparators(path);
+	mUi->xmlFieldsDir->setText(path);
+	qDebug() << path;
+	mDirOptions[mTasksPath][xmlFieldsDir] = path;
 }
 
 void MainWindow::on_openTasks_clicked()
