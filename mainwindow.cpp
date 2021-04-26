@@ -2,9 +2,13 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 
+#include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 #include <QFileDialog>
+#include <QFuture>
+#include <QFutureWatcher>
 #include <QProcess>
+#include <QProgressDialog>
 #include <QSettings>
 #include <QTextBrowser>
 #include <QThread>
@@ -12,7 +16,6 @@
 
 const QString closeSuccessOption = "closeOnSuccess";
 const QString backgroundOption = "background";
-const QString speedOption = "speed";
 const QString consoleOption = "showConsole";
 
 const QString xmlFieldsDir = "fieldsDir";
@@ -23,11 +26,10 @@ const QString resetRP = "resetRobotPosition";
 
 const QHash <QString, QVariant> defaultOptions {{closeSuccessOption, true}
 											   ,{backgroundOption, false}
-											   ,{speedOption, 5}
 											   ,{consoleOption, false}
 											   ,{xmlFieldsDir, ""}
 											   ,{patchField, true}
-											   ,{patchWorld, false}
+											   ,{patchWorld, true}
 											   ,{patchWP, false}};
 
 MainWindow::MainWindow(QWidget *parent)
@@ -68,15 +70,6 @@ QDir MainWindow::chooseDirectoryDialog()
 	return dialog.directory();
 }
 
-QString MainWindow::chooseFile()
-{
-	QFileDialog dialog;
-	dialog.setNameFilter("*.xml");
-	dialog.setFileMode(QFileDialog::Directory);
-	dialog.exec();
-	return dialog.directory().absoluteFilePath(dialog.selectedFiles().first());
-}
-
 void MainWindow::resetUiOptions(const QHash<QString, QVariant> &options)
 {
 	options[closeSuccessOption].toBool() ? mUi->closeOnSuccessOption->setCheckState(Qt::CheckState::Checked)
@@ -84,8 +77,6 @@ void MainWindow::resetUiOptions(const QHash<QString, QVariant> &options)
 	mUi->backgroundOption->setChecked(!options[backgroundOption].toBool());
 	options[patchField].toBool() ? mUi->wPPCheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->wPPCheckBox->setCheckState(Qt::CheckState::Unchecked);
-//	options[patchWorld].toBool() ? mUi->worldCheckBox->setCheckState(Qt::CheckState::Checked)
-//										 : mUi->worldCheckBox->setCheckState(Qt::CheckState::Unchecked);
 	options[patchWP].toBool() ? mUi->wPcheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->wPcheckBox->setCheckState(Qt::CheckState::Unchecked);
 	options[resetRP].toBool() ? mUi->resetPCheckBox->setCheckState(Qt::CheckState::Checked)
@@ -93,8 +84,6 @@ void MainWindow::resetUiOptions(const QHash<QString, QVariant> &options)
 	options[consoleOption].toBool() ? mUi->resetPCheckBox->setCheckState(Qt::CheckState::Checked)
 										 : mUi->resetPCheckBox->setCheckState(Qt::CheckState::Unchecked);
 	mUi->xmlFieldsDir->setText(options[xmlFieldsDir].toString());
-
-	//mUi->speedLineEdit->setText(options[speedOption].toString());
 }
 
 void MainWindow::loadSettings()
@@ -120,7 +109,6 @@ void MainWindow::saveSettings()
 {
 	QSettings settings(mLocalSettings, QSettings::IniFormat);
 	for (auto &&dir: mDirOptions.keys()) {
-		qDebug() << "beginGroup" << dir;
 		settings.beginGroup(dir);
 		for (auto &&option: mDirOptions[dir].keys()) {
 			qDebug() << option << mDirOptions[dir][option];
@@ -130,9 +118,11 @@ void MainWindow::saveSettings()
 	}
 }
 
+
+// For now we cant run tasks with javascript or python. Only scheme.
 const QStringList MainWindow::generateRunnerOptions(const QString &file)
 {
-	QStringList result {file};
+	QStringList result;// {file};
 
 	qDebug() << mDirOptions[mTasksPath];
 	if (mDirOptions[mTasksPath][closeSuccessOption].toBool())
@@ -144,18 +134,16 @@ const QStringList MainWindow::generateRunnerOptions(const QString &file)
 	if (mDirOptions[mTasksPath][consoleOption].toBool())
 		result << "-c";
 
-	result << "-s" << mDirOptions[mTasksPath][speedOption].toString();
-
-	result.append("-m");
-	result.append("script");
+//	result.append("-m");
+//	result.append("script");
 	qDebug() << result;
 	return result;
 }
 
 const QStringList MainWindow::generatePathcerOptions(const QString &file)
 {
-	QStringList result {file};
-	auto xml = mDirOptions[mTasksPath][xmlFieldsDir].toString();
+	QStringList result;// {file};
+	auto xml = mDirOptions[mTasksPath][xmlFieldsDir].toString() + "\\tast_4.xml";
 
 	if (mDirOptions[mTasksPath][patchField].toBool()) {
 		result << "-f" << xml;
@@ -181,8 +169,6 @@ const QStringList MainWindow::generatePathcerOptions(const QString &file)
 QString MainWindow::executeProcess(const QString &program, const QStringList &options)
 {
 	QProcess proccess;
-	connect(&proccess, &QProcess::readyReadStandardError
-			, this, [&proccess](){qDebug() << proccess.readAllStandardError();});
 	proccess.start(program, options);
 	if (!proccess.waitForStarted()) {
 		qDebug() << "model" << "not started" << proccess.exitStatus();;
@@ -202,7 +188,7 @@ QString MainWindow::executeProcess(const QString &program, const QStringList &op
 
 void MainWindow::on_chooseField_clicked()
 {
-	auto path = chooseFile();
+	auto path = QDir::toNativeSeparators(chooseDirectoryDialog().absolutePath());
 	path = QDir::toNativeSeparators(path);
 	mUi->xmlFieldsDir->setText(path);
 	qDebug() << path;
@@ -250,45 +236,119 @@ void MainWindow::createReport()
 	report.close();
 }
 
+
 void MainWindow::on_runCheckButton_clicked()
 {
+	/*QList<QFuture<MainWindow::TaskReport>> futureTasks;
 	auto tasks = mTasksDir.entryList({"*.qrs"}, QDir::Files);
-	qDebug() << tasks;
+	for (auto &&qrs : tasks) {
 
-	for (auto &&t : tasks) {
-		/*mActiveModels++;
-		auto workerThread = new QThread();
-		mWorkerThreads.append(workerThread);
-
-		auto worker = new ModelWorker(t);
-		mModelWorkers.append(worker);
-
-		worker->moveToThread(workerThread);
-		connect(worker, &ModelWorker::finished, this, [this](){mActiveModels--;});
-		connect(workerThread, &QThread::started, worker, [=](){worker->startExecution(mTasksDir.filePath(t));});
-		workerThread->start();*/
-
-		mTasksStatus.append({t, executeProcess("2D-model", generateRunnerOptions(mTasksDir.filePath(t)))});
+		auto patcherOptions = generatePathcerOptions(mTasksDir.filePath(qrs));
+		auto runnerOptions = generateRunnerOptions(mTasksDir.filePath(qrs));
+		futureTasks.append(QtConcurrent::run(runCheck, patcherOptions, runnerOptions));
 	}
+
+	for (auto &&f : futureTasks) {
+		f.waitForFinished();
+	}*/
+	auto tasks = mTasksDir.entryList({"*.qrs"}, QDir::Files);
+
+//	QProgressDialog dialog;
+//	dialog.setLabelText(QString("Выполняем проверку %1 задач").arg(tasks.length()));
+
+//	QFutureWatcher<QList<MainWindow::TaskReport>> watcher;
+//	connect(&watcher, &QFutureWatcher<QList<MainWindow::TaskReport>>::finished, &dialog, &QProgressDialog::reset);
+//	connect(&dialog,  &QProgressDialog::canceled, &watcher, &QFutureWatcher<QList<MainWindow::TaskReport>>::cancel);
+//	connect(&watcher, &QFutureWatcher<QList<MainWindow::TaskReport>>::progressRangeChanged
+//			, &dialog, &QProgressDialog::setRange);
+//	connect(&watcher, &QFutureWatcher<QList<MainWindow::TaskReport>>::progressValueChanged
+//			, &dialog, &QProgressDialog::setValue);
+
+	auto patcherOptions = generatePathcerOptions("");
+	auto runnerOptions = generateRunnerOptions("");
+//	QFuture<QList<MainWindow::TaskReport>> allTasks = QtConcurrent::run(runAllChecks, tasks, patcherOptions, runnerOptions);
+////	watcher.setFuture(allTasks);
+
+////	dialog.exec();
+////	watcher.waitForFinished();
+//	allTasks.waitForFinished();
+//	qDebug() << "end";
+
+	QList<QFuture<MainWindow::TaskReport>> futureTasks;
+	auto p = patcherOptions;
+	for (auto &&qrs : tasks) {
+
+		auto patcherOptions = generatePathcerOptions(mTasksDir.filePath(qrs));
+		auto runnerOptions = generateRunnerOptions(mTasksDir.filePath(qrs));
+		futureTasks.append(QtConcurrent::run(runCheck, qrs, patcherOptions, runnerOptions));
+	}
+//	for (const auto &qrs : tasks) {
+//		qDebug() << "patcher" << patcherOptions;
+//		qDebug() << "runner" << runnerOptions;
+//		futureTasks.append(QtConcurrent::run(runCheck, qrs, patcherOptions, runnerOptions));
+//	}
+
+	QList<MainWindow::TaskReport> result;
+	for (auto &&f : futureTasks) {
+		f.waitForFinished();
+		result.append(f.result());
+	}
+
 	createReport();
 }
 
-void MainWindow::on_patcherButton_clicked()
+QList<MainWindow::TaskReport> MainWindow::runAllChecks(const QStringList &tasks, QStringList patcherOptions
+													   , QStringList runnerOptions)
 {
-	auto toPatch = mTasksDir.entryList({"*.qrs"}, QDir::Files);
-	for (auto &&qrs : toPatch) {
-		executeProcess("patcher", generatePathcerOptions(mTasksDir.filePath(qrs)));
+	QList<QFuture<MainWindow::TaskReport>> futureTasks;
+	auto p = patcherOptions;
+	for (auto &&qrs : tasks) {
+		patcherOptions.prepend(qrs);
+		runnerOptions.prepend(qrs);
+
+		qDebug() << "patcher" << patcherOptions;
+		qDebug() << "runner" << runnerOptions;
+		futureTasks.append(QtConcurrent::run(runCheck, qrs, patcherOptions, runnerOptions));
+		patcherOptions.removeFirst();
+		runnerOptions.removeFirst();
 	}
+
+//	futureTasks.first().waitForFinished();
+//	auto a = futureTasks.at(1);
+//	a.waitForFinished();
+	futureTasks.back().waitForFinished();
+
+	QList<MainWindow::TaskReport> result;
+	for (auto &&f : futureTasks) {
+		f.waitForFinished();
+		qDebug() << f.result().error;
+	}
+
+	return result;
+}
+
+MainWindow::TaskReport MainWindow::runCheck(const QString &name, const QStringList &patcherOptions
+											, const QStringList &modelOptions)
+{
+	auto p = patcherOptions;
+	p.prepend(name);
+	qDebug() << "p" << p;
+	executeProcess("patcher", p);
+
+	TaskReport report;
+	report.name = name;
+	report.time = "0";
+	auto m = modelOptions;
+	m.prepend(name);
+	qDebug() << "m" << m;
+	report.error = executeProcess("2D-model", m);
+
+	return report;
 }
 
 void MainWindow::on_wPcheckBox_stateChanged(int state)
 {
 	mDirOptions[mTasksPath][patchWP] = state == Qt::CheckState::Checked;
-}
-
-void MainWindow::on_worldCheckBox_stateChanged(int state)
-{
-	mDirOptions[mTasksPath][patchWorld] = state == Qt::CheckState::Checked;
 }
 
 void MainWindow::on_wPPCheckBox_stateChanged(int state)
@@ -301,16 +361,7 @@ void MainWindow::on_resetPCheckBox_stateChanged(int state)
 	mDirOptions[mTasksPath][resetRP] = state == Qt::CheckState::Checked;
 }
 
-void MainWindow::on_speedLineEdit_textChanged(const QString &speed)
+void MainWindow::on_showConsoleCheckBox_stateChanged(int state)
 {
-	bool ok;
-	int speedValue = speed.toInt(&ok);
-	if (ok) {
-		mDirOptions[mTasksPath][speedOption] = speedValue;
-	}
-}
-
-void MainWindow::on_showConsolecheckBox_stateChanged(int state)
-{
-	 mDirOptions[mTasksPath][consoleOption] = state == Qt::CheckState::Checked;
+	mDirOptions[mTasksPath][consoleOption] = state == Qt::CheckState::Checked;
 }

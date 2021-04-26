@@ -5,19 +5,19 @@
 
 class ModelWorker : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    ModelWorker(const QString &fileName);
+	ModelWorker(const QString &fileName);
 
 public slots:
-    void startExecution(const QString &qrsFile);
+	void startExecution(const QString &qrsFile);
 
 signals:
-    void finished();
+	void finished();
 
 private:
-    QString mName;
+	QString mName;
 };
 
 #endif // MODELWORKER_H

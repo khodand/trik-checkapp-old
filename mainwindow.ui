@@ -114,14 +114,14 @@
              <item>
               <widget class="QCheckBox" name="wPcheckBox">
                <property name="text">
-                <string>Ограничения на конструкцию робота</string>
+                <string>Жюри выбирает точку старта</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QCheckBox" name="wPPCheckBox">
                <property name="text">
-                <string>Жюри выбирает точку старта</string>
+                <string>Задать точку старта и конструкцию робота</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
@@ -144,6 +144,9 @@
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QGroupBox" name="backgroundOption">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="title">
                 <string>Включить визуализацию проверки</string>
                </property>
@@ -159,12 +162,22 @@
                   <x>10</x>
                   <y>20</y>
                   <width>371</width>
-                  <height>80</height>
+                  <height>42</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_6">
                  <item>
+                  <widget class="QCheckBox" name="showConsoleCheckBox">
+                   <property name="text">
+                    <string>Отображать консоль робота</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QCheckBox" name="closeOnSuccessOption">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
