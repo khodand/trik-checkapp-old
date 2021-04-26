@@ -36,16 +36,28 @@ private slots:
 private:
 	struct TaskReport {
 		QString name;
+		QString task;
 		QString error;
 		QString time;
 	};
 
 	void createReport();
 
-	static TaskReport runCheck(const QString &name, const QStringList &patcherOptions, const QStringList &modelOptions);
+	static QList<TaskReport> runCheck(const QString &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions, const QStringList &modelOptions);
 
-	static QList<TaskReport> runAllChecks(const QStringList &tasks
+	struct Task {
+		QString qrs;
+		QFileInfoList fieldsInfos;
+		QStringList patcherOptions;
+		QStringList modelOptions;
+	};
+
+	static QList<TaskReport> runCheckFromTask(const Task &task);
+
+	static QList<TaskReport> runAllChecks(const QFileInfoList &tasksInfos, const QFileInfoList &fieldsInfos
 										  , QStringList patcherOptions, QStringList modelOptions);
+
+	static void reduceFunction(QList<MainWindow::TaskReport> &result, const QList<MainWindow::TaskReport> &intermediate);
 
 	QDir chooseDirectoryDialog();
 
@@ -64,6 +76,7 @@ private:
 
 	Ui::MainWindow *mUi;
 	QDir mTasksDir;
+	QDir mFieldsDir;
 	QString mTasksPath;
 	QDir mStudioDir;
 	QString mLocalSettings;
