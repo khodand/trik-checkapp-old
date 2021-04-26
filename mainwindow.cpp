@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
 	});
 	connect(mUi->backgroundOption, &QGroupBox::toggled, [this](bool state){
 		mDirOptions[mTasksPath][backgroundOption] = !state;
+		mUi->closeOnSuccessOption->setEnabled(state);
 	});
 
 	loadSettings();
@@ -202,7 +203,7 @@ void MainWindow::on_openTasks_clicked()
 	resetUiOptions(mDirOptions[mTasksPath]);
 }
 
-void MainWindow::createReport()
+void MainWindow::createReport(const QList<MainWindow::TaskReport> &result)
 {
 	QFile report(mTasksPath + QDir::separator() + "report.html");
 	QString head = "<!DOCTYPE html><html> <head> <meta charset=\"utf-8\" /> <title>Report</title> <style> "
@@ -215,17 +216,17 @@ void MainWindow::createReport()
 	QString end = "</body></html>";
 	QString body = "";
 
-	for (auto &&s : mTasksStatus) {
-		if (s.second.isEmpty()) {
-			body += QString("<p style=\"color: #009933;\">%1 Successfull!</p>").arg(s.first);
+	for (auto &&r : result) {
+		if (r.error.isEmpty()) {
+			body += QString("<p style=\"color: #009933;\">%1 Successfull!</p>").arg(r.name);
 		}
 		else {
-			body += QString("<p style=\"color: #001a42;\">%1 Error: %2</p>").arg(s.first, s.second);
+			body += QString("<p style=\"color: #001a42;\">%1 Error: %2</p>").arg(r.name, r.error);
 		}
 	}
 	head += body + end;
 	std::string html = head.toStdString();
-	const char* raw = html.c_str();
+	const auto raw = html.c_str();
 	report.open(QIODevice::WriteOnly | QIODevice::Truncate);
 	report.write(raw);
 	report.close();
@@ -234,19 +235,6 @@ void MainWindow::createReport()
 
 void MainWindow::on_runCheckButton_clicked()
 {
-	/*QList<QFuture<MainWindow::TaskReport>> futureTasks;
-	auto tasks = mTasksDir.entryList({"*.qrs"}, QDir::Files);
-	for (auto &&qrs : tasks) {
-
-		auto patcherOptions = generatePathcerOptions(mTasksDir.filePath(qrs));
-		auto runnerOptions = generateRunnerOptions(mTasksDir.filePath(qrs));
-		futureTasks.append(QtConcurrent::run(runCheck, patcherOptions, runnerOptions));
-	}
-
-	for (auto &&f : futureTasks) {
-		f.waitForFinished();
-	}*/
-
 	auto qrsList = mTasksDir.entryInfoList({"*.qrs"}, QDir::Files);
 	auto fields = mFieldsDir.entryInfoList({"*.xml"}, QDir::Files);
 
@@ -267,38 +255,26 @@ void MainWindow::on_runCheckButton_clicked()
 
 	QList<MainWindow::Task> tasksList;
 	for (auto &&qrs : qrsList) {
-		tasksList.append({qrs.absoluteFilePath(), fields, patcherOptions, runnerOptions});
+		tasksList.append({qrs, fields, patcherOptions, runnerOptions});
 	}
-	//QList<MainWindow::TaskReport>
-//	QHash()
-//	QFuture<typename QtPrivate::MapResultType<void, MapFunctor>::ResultType> a;
+
 	auto allTasks = QtConcurrent::mappedReduced(tasksList, runCheckFromTask, reduceFunction);
-	//auto allTasks = QtConcurrent::blockingMappedReduced(tasksList, runCheck, &MainWindow::reduceFunction);
-	//QFuture<QList<MainWindow::TaskReport>> allTasks = QtConcurrent::run(runAllChecks, tasks, fields, patcherOptions, runnerOptions);
-
-
 	watcher.setFuture(allTasks);
-
 	dialog.exec();
+
 	watcher.waitForFinished();
-	allTasks.waitForFinished();
-	qDebug() << "end";
+	if (watcher.isCanceled()) {
+		return;
+	}
 
-//	QList<QFuture<QList<MainWindow::TaskReport>>> futureTasks;
-//	for (auto &&qrs : tasks) {
-
-//		auto patcherOptions = generatePathcerOptions(mTasksDir.filePath(qrs));
-//		auto runnerOptions = generateRunnerOptions(mTasksDir.filePath(qrs));
-//		futureTasks.append(QtConcurrent::run(runCheck, mTasksDir.filePath(qrs), fields, patcherOptions, runnerOptions));
+	auto result = watcher.result();
+//	QStringList print;
+//	for (auto &&r : result) {
+//		print << r.name;
 //	}
+//	qDebug() << print;
 
-//	QList<MainWindow::TaskReport> result;
-//	for (auto &&f : futureTasks) {
-//		f.waitForFinished();
-//		result += f.result();
-//	}
-
-	createReport();
+	createReport(result);
 }
 
 void MainWindow::reduceFunction(QList<MainWindow::TaskReport> &result, const QList<MainWindow::TaskReport> &intermediate) {
@@ -330,18 +306,18 @@ QList<MainWindow::TaskReport> MainWindow::runAllChecks(const QFileInfoList &task
 	return result;
 }
 
-QList<MainWindow::TaskReport> MainWindow::runCheck(const QString &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions
+QList<MainWindow::TaskReport> MainWindow::runCheck(const QFileInfo &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions
 											, const QStringList &modelOptions)
 {
 	QList<MainWindow::TaskReport> result;
 	for (auto &&f : fieldsInfos) {
-		executeProcess("patcher", QStringList(name) + patcherOptions + QStringList(f.absoluteFilePath()));
+		executeProcess("patcher", QStringList(name.absoluteFilePath()) + patcherOptions + QStringList(f.absoluteFilePath()));
 
 		TaskReport report;
-		report.name = name;
+		report.name = name.fileName();
 		report.task = f.fileName();
 		report.time = "0";
-		report.error = executeProcess("2D-model", QStringList(name) + modelOptions);
+		report.error = executeProcess("2D-model", QStringList(name.absoluteFilePath()) + modelOptions);
 
 		result.append(report);
 	}
@@ -351,7 +327,6 @@ QList<MainWindow::TaskReport> MainWindow::runCheck(const QString &name, const QF
 
 QList<MainWindow::TaskReport> MainWindow::runCheckFromTask(const MainWindow::Task &t)
 {
-	//runCheck(t.qrs, t.fieldsInfos, t.patcherOptions, t.modelOptions);
 	return runCheck(t.qrs, t.fieldsInfos, t.patcherOptions, t.modelOptions);;
 }
 

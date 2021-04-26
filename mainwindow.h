@@ -41,12 +41,12 @@ private:
 		QString time;
 	};
 
-	void createReport();
+	void createReport(const QList<MainWindow::TaskReport> &result);
 
-	static QList<TaskReport> runCheck(const QString &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions, const QStringList &modelOptions);
+	static QList<TaskReport> runCheck(const QFileInfo &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions, const QStringList &modelOptions);
 
 	struct Task {
-		QString qrs;
+		QFileInfo qrs;
 		QFileInfoList fieldsInfos;
 		QStringList patcherOptions;
 		QStringList modelOptions;
