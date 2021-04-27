@@ -1,10 +1,7 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QDir>
 #include <QMainWindow>
-
-#include "modelworker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,32 +30,9 @@ private slots:
 
 	void on_showConsoleCheckBox_stateChanged(int state);
 
+	void on_closeOnSuccessOption_stateChanged(int arg1);
+
 private:
-	struct TaskReport {
-		QString name;
-		QString task;
-		QString error;
-		QString time;
-	};
-
-	void createReport(const QList<MainWindow::TaskReport> &result);
-
-	static QList<TaskReport> runCheck(const QFileInfo &name, const QFileInfoList &fieldsInfos, const QStringList &patcherOptions, const QStringList &modelOptions);
-
-	struct Task {
-		QFileInfo qrs;
-		QFileInfoList fieldsInfos;
-		QStringList patcherOptions;
-		QStringList modelOptions;
-	};
-
-	static QList<TaskReport> runCheckFromTask(const Task &task);
-
-	static QList<TaskReport> runAllChecks(const QFileInfoList &tasksInfos, const QFileInfoList &fieldsInfos
-										  , QStringList patcherOptions, QStringList modelOptions);
-
-	static void reduceFunction(QList<MainWindow::TaskReport> &result, const QList<MainWindow::TaskReport> &intermediate);
-
 	QDir chooseDirectoryDialog();
 
 	void resetUiOptions(const QHash <QString, QVariant> &options);
@@ -66,13 +40,6 @@ private:
 	void loadSettings();
 
 	void saveSettings();
-
-	const QStringList generateRunnerOptions(const QString &file);
-
-	const QStringList generatePathcerOptions(const QString &file);
-
-	static QString executeProcess(const QString &program, const QStringList &options);
-
 
 	Ui::MainWindow *mUi;
 	QDir mTasksDir;
@@ -82,7 +49,6 @@ private:
 	QString mLocalSettings;
 
 	QList <QThread *> mWorkerThreads;
-	QList <ModelWorker *> mModelWorkers;
 
 	QList <QPair<QString, QString>> mTasksStatus;
 
@@ -90,4 +56,3 @@ private:
 
 	QAtomicInt mActiveModels {0};
 };
-#endif // MAINWINDOW_H

@@ -9,13 +9,15 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    checker.cpp \
     main.cpp \
-    mainwindow.cpp \
-    modelworker.cpp
+    mainwindow.cpp
 
 HEADERS += \
+    checker.h \
+    htmlTemplates.h \
     mainwindow.h \
-    modelworker.h
+    optionsAliases.h
 
 FORMS += \
     mainwindow.ui
@@ -38,4 +40,7 @@ macx {
 	ICON = icon.icns
 	QMAKE_INFO_PLIST = mainWindow.plist
 }
+
+RESOURCES += \
+    resources.qrc
 
