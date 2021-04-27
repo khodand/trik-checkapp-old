@@ -4,9 +4,12 @@
 #include <QDebug>
 #include <QtConcurrent>
 #include <QProgressDialog>
+#include <QTime>
 
 #include <optionsAliases.h>
 #include <htmlTemplates.h>
+
+const int BACKGROUND_TIMELIMIT = 20 * 1000;
 
 Checker::Checker(const QString &tasksPath)
 	: mTasksPath(tasksPath)
@@ -24,8 +27,10 @@ void Checker::revieweTasks(const QFileInfoList &qrsInfos, const QFileInfoList &f
 	}
 
 	QProgressDialog dialog;
-	dialog.setLabelText(QString("%1 on %2 using %3")
-						.arg(qrsInfos.length()).arg(fieldsInfos.length()).arg(QThread::idealThreadCount()));
+	dialog.setCancelButtonText("Отмена");
+	dialog.setWindowTitle("TRIK CheckApp");
+	dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	dialog.setLabelText("Выполняется проверка...");
 
 
 	QFutureWatcher<QHash<QString, QList<TaskReport>>> watcher;
@@ -53,14 +58,17 @@ void Checker::revieweTasks(const QFileInfoList &qrsInfos, const QFileInfoList &f
 QList<Checker::TaskReport> Checker::checkTask(const Checker::Task *t)
 {
 	QList<TaskReport> result;
+	QElapsedTimer timer;
 	for (auto &&f : t->fieldsInfos) {
 		startProcess("patcher", QStringList(t->qrs.absoluteFilePath()) + t->patcherOptions + QStringList(f.absoluteFilePath()));
 
 		TaskReport report;
 		report.name = t->qrs.fileName();
 		report.task = f.fileName();
-		report.time = "0";
+
+		timer.restart();
 		report.error = startProcess("2D-model", QStringList(t->qrs.absoluteFilePath()) + t->runnerOptions);
+		report.time = QTime::fromMSecsSinceStartOfDay(timer.elapsed()).toString("mm:ss:zzz");
 
 		result.append(report);
 	}
@@ -78,6 +86,11 @@ void Checker::reduceFunction(QHash<QString, QList<TaskReport>> &result, const QL
 QString Checker::startProcess(const QString &program, const QStringList &options)
 {
 	QProcess proccess;
+
+	if (options.contains("-b")) {
+		QTimer::singleShot(BACKGROUND_TIMELIMIT, &proccess, &QProcess::terminate);
+	}
+
 	qDebug() << program << options << __PRETTY_FUNCTION__;
 	proccess.start(program, options);
 	if (!proccess.waitForStarted()) {
@@ -128,17 +141,17 @@ void Checker::createHtmlReport(QHash<QString, QList<TaskReport>> &result)
 		}
 
 		auto first = studentResults.first();
-		body += taskReport.arg(color).arg(first.name).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg("0");
+		body += taskReport.arg(color).arg(first.name).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg(first.time);
 		studentResults.removeFirst();
 
 		if (!studentResults.isEmpty()) {
 			first = studentResults.first();
 			auto summary = QString("Итог %1 из %2").arg(numberOfCorrect[i]).arg(result[key].length());
-			body += taskReport.arg("").arg(summary).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg("0");
+			body += taskReport.arg("").arg(summary).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg(first.time);
 			studentResults.removeFirst();
 
 			for (auto &&r : studentResults) {
-				body += taskReport.arg("").arg("").arg(r.task).arg(r.error.isEmpty() ? "Выполнено" : "Ошибка").arg("0");
+				body += taskReport.arg("").arg("").arg(r.task).arg(r.error.isEmpty() ? "Выполнено" : "Ошибка").arg(r.time);
 			}
 		}
 
