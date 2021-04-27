@@ -22,8 +22,8 @@ QString reportHeader =
 		"<td class=\"u-table-cell\" spellcheck=\"false\">Статус<br></td><td class=\"u-table-cell\" spellcheck=\"false\">"
 		"Время исполнения<br></td></tr>";
 
-QString greenCssClass = "u-custom-color-1";
-QString yellowCssClass = "u-palette-3-light-1";
+QString greenCssClass = "u-custom-color-1 u-text-black";
+QString yellowCssClass = "u-palette-3-light-1 u-text-black";
 QString blackCssClass = "u-custom-color-2";
 
 // %1 - color
@@ -33,7 +33,7 @@ QString blackCssClass = "u-custom-color-2";
 // %5 - execution time
 QString taskReport =
 		"<tr style=\"height: 58px;\">"
-		"<td style=\"font-weight: bold\" class=\"u-custom-font u-first-column u-font-montserrat %1 u-table-cell u-text-black\">%2</td>"
+		"<td style=\"font-weight: bold\" class=\"u-custom-font u-first-column u-font-montserrat %1 u-table-cell\">%2</td>"
 		"<td class=\"u-table-cell\">%3</td><td class=\"u-table-cell\">%4</td><td class=\"u-table-cell\">%5</td>"
 		"</tr>";
 
