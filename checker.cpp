@@ -52,7 +52,18 @@ void Checker::revieweTasks(const QFileInfoList &qrsInfos, const QFileInfoList &f
 
 	auto futureTasks = QtConcurrent::mappedReduced(tasksList, checkTask, reduceFunction);
 	watcher.setFuture(futureTasks);
+
 	dialog.exec();
+	if (dialog.wasCanceled()) {
+		watcher.waitForFinished();
+	}
+	qDebug() << "watcher.isCanceled()" << watcher.isCanceled();
+
+	for(auto &&t : tasksList) {
+		delete t;
+	}
+
+
 }
 
 QList<Checker::TaskReport> Checker::checkTask(const Checker::Task *t)
@@ -68,7 +79,14 @@ QList<Checker::TaskReport> Checker::checkTask(const Checker::Task *t)
 
 		timer.restart();
 		report.error = startProcess("2D-model", QStringList(t->qrs.absoluteFilePath()) + t->runnerOptions);
+		qDebug() << report.name << report.task << report.error;
 		report.time = QTime::fromMSecsSinceStartOfDay(timer.elapsed()).toString("mm:ss:zzz");
+		if (!isErrorMessage(report.error)) {
+			int start = report.error.indexOf("за") + 3;
+			int end = report.error.indexOf("сек!") - 1;
+			qDebug() << "REPORTER: " << start << end << report.error.mid(start, end - start);
+			report.time += "/" + report.error.mid(start, end - start);
+		}
 
 		result.append(report);
 	}
@@ -91,8 +109,8 @@ QString Checker::startProcess(const QString &program, const QStringList &options
 		QTimer::singleShot(BACKGROUND_TIMELIMIT, &proccess, &QProcess::terminate);
 	}
 
-	qDebug() << program << options << __PRETTY_FUNCTION__;
-	proccess.start(program, options);
+	auto p = program;
+	proccess.start(p, options);
 	if (!proccess.waitForStarted()) {
 		qDebug() << "model" << "not started" << proccess.exitStatus();;
 		return "Error: not started";
@@ -103,8 +121,8 @@ QString Checker::startProcess(const QString &program, const QStringList &options
 		return "Error: not finished";
 	}
 
-	auto error = proccess.readAllStandardError();
-	qDebug() << proccess.readAll() << error << proccess.readAllStandardOutput() << proccess.exitStatus();
+	QString error = proccess.readAllStandardError();
+
 	return error;
 }
 
@@ -118,7 +136,7 @@ void Checker::createHtmlReport(QHash<QString, QList<TaskReport>> &result)
 	for (auto &&key : qrsNames) {
 		std::sort(result[key].begin(), result[key].end(), compareReportsByTask);
 		foreach (auto r, result[key]) {
-			numberOfCorrect[i] += r.error.isEmpty() ? 1 : 0;
+			numberOfCorrect[i] += isErrorMessage(r.error) ? 0 : 1;
 		}
 		i++;
 	}
@@ -140,21 +158,24 @@ void Checker::createHtmlReport(QHash<QString, QList<TaskReport>> &result)
 			color = blackCssClass;
 		}
 
-		auto first = studentResults.first();
-		body += taskReport.arg(color).arg(first.name).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg(first.time);
-		studentResults.removeFirst();
-
-		if (!studentResults.isEmpty()) {
-			first = studentResults.first();
-			auto summary = QString("Итог %1 из %2").arg(numberOfCorrect[i]).arg(result[key].length());
-			body += taskReport.arg("").arg(summary).arg(first.task).arg(first.error.isEmpty() ? "Выполнено" : "Ошибка").arg(first.time);
-			studentResults.removeFirst();
-
-			for (auto &&r : studentResults) {
-				body += taskReport.arg("").arg("").arg(r.task).arg(r.error.isEmpty() ? "Выполнено" : "Ошибка").arg(r.time);
+		int counter = 0;
+		QString name;
+		for (auto &&r : studentResults) {
+			name = "";
+			if (counter == 0) {
+				name = r.name;
+			} else if (counter == 1) {
+				color = "";
+				name = QString("Итог %1 из %2").arg(numberOfCorrect[i]).arg(result[key].length());
 			}
-		}
+			qDebug() << r.name << r.task;
+			qDebug() << r.error;
+			QString status = isErrorMessage(r.error) ? "Ошибка" : "Выполнено";
+			qDebug() << status;
+			body += taskReport.arg(color).arg(name).arg(r.task).arg(status).arg(r.time);
 
+			counter++;
+		}
 		i++;
 	}
 
@@ -173,6 +194,9 @@ void Checker::createHtmlReport(QHash<QString, QList<TaskReport>> &result)
 	reportFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
 	reportFile.write(raw);
 	reportFile.close();
+
+	qDebug() << "REPORT CREATED";
+	delete[] numberOfCorrect;
 }
 
 const QStringList Checker::generateRunnerOptions(const QHash<QString, QVariant> &options)
@@ -189,6 +213,7 @@ const QStringList Checker::generateRunnerOptions(const QHash<QString, QVariant> 
 	if (options[consoleOption].toBool())
 		result << "-c";
 
+	result << "-m" << "script";
 	return result;
 }
 
@@ -214,4 +239,10 @@ const QStringList Checker::generatePathcerOptions(const QHash<QString, QVariant>
 	}
 
 	return result;
+}
+
+bool Checker::isErrorMessage(const QString &message)
+{
+	//return message.indexOf("Information") == -1;
+	return message.indexOf("выполнено") == -1;
 }

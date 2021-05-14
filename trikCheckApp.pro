@@ -11,13 +11,13 @@ CONFIG += c++11
 SOURCES += \
     checker.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
 
 HEADERS += \
     checker.h \
     htmlTemplates.h \
     mainwindow.h \
-    optionsAliases.h
+    optionsAliases.h \
 
 FORMS += \
     mainwindow.ui

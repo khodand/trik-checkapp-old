@@ -48,11 +48,5 @@ private:
 	QDir mStudioDir;
 	QString mLocalSettings;
 
-	QList <QThread *> mWorkerThreads;
-
-	QList <QPair<QString, QString>> mTasksStatus;
-
 	QHash <QString, QHash <QString, QVariant>> mDirOptions;
-
-	QAtomicInt mActiveModels {0};
 };
